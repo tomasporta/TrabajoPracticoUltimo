@@ -83,7 +83,14 @@ namespace ComponentesComputadoras.WebApi.Controllers
             if (compra is null) return NotFound();
 
             _context.Compras.Remove(compra);
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict(new { error = "No se puede borrar la compra porque tiene detalles asociados.", detalle = ex.Message });
+            }
 
             return NoContent();
         }

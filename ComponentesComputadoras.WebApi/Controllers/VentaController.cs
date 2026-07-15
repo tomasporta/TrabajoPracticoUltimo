@@ -75,7 +75,14 @@ namespace ComponentesComputadoras.WebApi.Controllers
             if (venta is null) return NotFound();
 
             _context.Ventas.Remove(venta);
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict(new { error = "No se puede borrar la venta porque tiene detalles asociados.", detalle = ex.Message });
+            }
 
             return NoContent();
         }

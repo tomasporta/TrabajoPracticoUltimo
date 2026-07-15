@@ -23,10 +23,11 @@ namespace ComponentesComputadoras.WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly DbDataAccess _context;
 
-        public ProductosController(DbDataAccess context, IMapper mapper, ILogger<ProductosController> logger)
+        public ProductosController(DbDataAccess context, IMapper mapper, ILogger<ProductosController> logger, IApplication<Producto> producto)
         {
             _context = context;
             _mapper = mapper;
+            _producto = producto;
             _logger = logger;
         }
 
@@ -82,12 +83,23 @@ namespace ComponentesComputadoras.WebApi.Controllers
         [Authorize]
         public IActionResult Borrar(int id)
         {
-            var productoBack = _producto.GetById(id);
-            if (productoBack is null) return NotFound();
+            var producto = _context.Productos.Find(id);
+            if (producto is null) return NotFound();
 
-            _producto.Delete(productoBack.Id);
+            _context.Productos.Remove(producto);
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException ex)
+            {
+                return Conflict(new { error = "No se puede borrar el producto porque está relacionado con compras o ventas.", detalle = ex.Message });
+            }
+
             return NoContent();
         }
     }
 
 }
+///g
