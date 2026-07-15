@@ -77,6 +77,7 @@ namespace ComponentesComputadoras.WebApi.Controllers
             if (clienteBack is null) return NotFound();
 
             _cliente.Delete(clienteBack.Id);
+
             return NoContent();
         }
     }
